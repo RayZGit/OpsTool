@@ -2,16 +2,19 @@ package com.rayzhou.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.rayzhou.usercenter.service.UserService;
-import com.rayzhou.usercenter.model.User;
 import com.rayzhou.usercenter.mapper.UserMapper;
+import com.rayzhou.usercenter.model.User;
+import com.rayzhou.usercenter.service.UserService;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
 * @author Ray
@@ -19,8 +22,15 @@ import java.util.regex.Pattern;
 * @createDate 2024-02-12 02:14:09
 */
 @Service
+@Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
+
+    private static final String SALT = "ray";
+    /**
+     * User Login State
+     */
+    private static final String USER_LOGIN_STATE = "userLoginState";
 
     @Resource
     private UserMapper userMapper;
@@ -51,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return -1;
         }
 
-        String hashedPassword = DigestUtils.md5DigestAsHex(("ray" + password).getBytes());
+        String hashedPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(hashedPassword);
@@ -62,8 +72,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User doLogin(User userAccount, String userPassword) {
-        
+    public User doLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+            return null;
+        }
+        if (userAccount.length() < 4) {
+            return null;
+        }
+        if (userPassword.length() < 8) {
+            return null;
+        }
+        String validPattern = "[$&+,:;=?@#|'<>.^*()%!-]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            return null;
+        }
+
+        String hashedPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPassword", hashedPassword);
+
+        User user = userMapper.selectOne(queryWrapper);
+        if (user == null) {
+            log.info("User login failed, userAccount or userPassword can't match");
+            return null;
+        }
+
+        User safetyUser = new User();
+        safetyUser.setId(user.getId());
+        safetyUser.setUserAccount(user.getUserAccount());
+        safetyUser.setUserName(user.getUserName());
+        safetyUser.setAvatarUrl(user.getAvatarUrl());
+        safetyUser.setGender(user.getGender());
+        safetyUser.setPhone(user.getPhone());
+        safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserStatus(user.getUserStatus());
+        safetyUser.setCreateTime(user.getCreateTime());
+
+        request.getSession().setAttribute(USER_LOGIN_STATE, safetyUser);
+
+        return safetyUser;
+
     }
 }
 

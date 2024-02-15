@@ -2,6 +2,8 @@ package com.rayzhou.usercenter.service;
 
 import com.rayzhou.usercenter.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
 * @author Ray
@@ -25,5 +27,5 @@ public interface UserService extends IService<User> {
      * @param userPassword 用户密码
      * @return 用户信息
      */
-    User doLogin(User userAccount, String userPassword);
+    User doLogin(String userAccount, String userPassword, HttpServletRequest request);
 }
