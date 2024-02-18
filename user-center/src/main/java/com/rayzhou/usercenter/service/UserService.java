@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.List;
+
 /**
 * @author Ray
 * @description 针对表【user】的数据库操作Service
@@ -27,5 +29,12 @@ public interface UserService extends IService<User> {
      * @param userPassword 用户密码
      * @return 用户信息
      */
-    User doLogin(String userAccount, String userPassword, HttpServletRequest request);
+    User userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     *  根据用户名查找用户
+     * @param userName
+     * @return 用户数组
+     */
+    List<User> searchUsers(String userName);
 }

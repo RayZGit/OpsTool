@@ -1,6 +1,8 @@
 spring:
   application:
     name: user-center
+  session:
+    timeout: 86400
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

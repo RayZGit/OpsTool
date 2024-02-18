@@ -7,13 +7,15 @@ import com.rayzhou.usercenter.model.User;
 import com.rayzhou.usercenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import static com.rayzhou.usercenter.constant.UserConstant.USER_LOGIN_STATE;
 
 
 /**
@@ -27,10 +29,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
     private static final String SALT = "ray";
-    /**
-     * User Login State
-     */
-    private static final String USER_LOGIN_STATE = "userLoginState";
 
     @Resource
     private UserMapper userMapper;
@@ -72,14 +70,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User doLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             return null;
         }
         if (userAccount.length() < 4) {
             return null;
         }
-        if (userPassword.length() < 8) {
+        if (userPassword.length() < 6) {
             return null;
         }
         String validPattern = "[$&+,:;=?@#|'<>.^*()%!-]";
@@ -107,6 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setGender(user.getGender());
         safetyUser.setPhone(user.getPhone());
         safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserRole(user.getUserRole());
         safetyUser.setUserStatus(user.getUserStatus());
         safetyUser.setCreateTime(user.getCreateTime());
 
@@ -114,6 +113,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         return safetyUser;
 
+    }
+
+    @Override
+    public List<User> searchUsers(String userName) {
+
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("userName", userName);
+        return this.list(queryWrapper);
     }
 }
 
