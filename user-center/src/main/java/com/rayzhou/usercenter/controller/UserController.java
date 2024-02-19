@@ -6,6 +6,7 @@ import com.rayzhou.usercenter.model.request.UserRegisterRequest;
 import com.rayzhou.usercenter.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ import static com.rayzhou.usercenter.constant.UserConstant.USER_LOGIN_STATE;
  * 用户接口
  */
 @RestController
+@Slf4j
 @RequestMapping("/user")
 public class UserController {
 
@@ -42,12 +44,12 @@ public class UserController {
     @PostMapping("/login")
     public User userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
-            return null;
+            return new User();
         }
         String userAccount = userLoginRequest.getUserAccount();
         String password = userLoginRequest.getPassword();
         if (StringUtils.isAnyBlank(userAccount, password)) {
-            return null;
+            return new User();
         }
 
         return userService.userLogin(userAccount, password, request);
@@ -64,7 +66,7 @@ public class UserController {
         return null;
     }
 
-    @PostMapping("/delete/user")
+    @PostMapping("/delete")
     public boolean deleteUser(@RequestBody long id, HttpServletRequest request) {
         if (!isAdmin(request)) {
             return Boolean.FALSE;

@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.DigestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,11 +18,11 @@ class UserServiceTest {
     @Test
     public void testAddUser() {
         User user = new User();
-        user.setUserAccount("123");
-        user.setUserName("rayz");
+        user.setUserAccount("1234");
+        user.setUserName("rayz_new");
         user.setAvatarUrl("https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tesla_logo.png/600px-Tesla_logo.png");
         user.setGender(1);
-        user.setUserPassword("123456");
+        user.setUserPassword(DigestUtils.md5DigestAsHex(("ray" + "123456").getBytes()));
         user.setPhone("1231234");
         user.setEmail("xxx@gmail.com");
         boolean result = userService.save(user);

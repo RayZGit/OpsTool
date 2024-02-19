@@ -7,6 +7,7 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { Link, history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+import {RequestConfig} from "@@/plugin-request/request";
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
