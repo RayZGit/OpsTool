@@ -28,7 +28,7 @@ public class UserController {
 
     @PostMapping("/register")
     public Long userRegister(@RequestBody UserRegisterRequest request) {
-        if (request != null) {
+        if (request == null) {
             return null;
         }
         String userAccount = request.getUserAccount();
