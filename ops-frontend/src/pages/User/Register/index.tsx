@@ -95,6 +95,9 @@ const Register: React.FC = () => {
         const urlParams = new URL(window.location.href).searchParams;
         // redirect to login page
         history.push('/user/user/login?redirect=' + urlParams.get('redirect'));
+        history.push({
+
+        })
         return;
       }
       throw new Error(`Register error id  = ${userId}`)

@@ -122,6 +122,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.like("userName", userName);
         return this.list(queryWrapper);
     }
+
+    public User getSafetyUser(User user) {
+        if (user == null) {
+            return null;
+        }
+        User safetyUser = new User();
+        safetyUser.setId(null);
+        safetyUser.setUserAccount(user.getUserAccount());
+        safetyUser.setUserName(user.getUserName());
+        safetyUser.setUserRole(user.getUserRole());
+        safetyUser.setAvatarUrl(user.getAvatarUrl());
+        safetyUser.setGender(user.getGender());
+        safetyUser.setUserPassword(null);
+        safetyUser.setPhone(user.getPhone());
+        safetyUser.setEmail(user.getEmail());
+        safetyUser.setUserStatus(user.getUserStatus());
+        safetyUser.setCreateTime(user.getCreateTime());
+        safetyUser.setUpdateTime(user.getUpdateTime());
+        return safetyUser;
+    }
 }
 
 

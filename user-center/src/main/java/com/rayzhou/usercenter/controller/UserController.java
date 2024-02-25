@@ -55,6 +55,23 @@ public class UserController {
         return userService.userLogin(userAccount, password, request);
     }
 
+    @GetMapping("/current")
+    public User getCurrentUse(HttpServletRequest request) {
+        Object obj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) obj;
+        if (user == null) {
+            return null;
+        }
+        Long userId = user.getId();
+        User currentUser = userService.getById(userId);
+        // TODO: User authorization
+        if (currentUser != null && currentUser.getIsDelete() == 1) {
+            log.info("User: {} is deleted", user);
+            return null;
+        }
+        return userService.getSafetyUser(user);
+    }
+
     @GetMapping("/search")
     public List<User> searchUsers(String username, HttpServletRequest request) {
         if (!isAdmin(request)) {

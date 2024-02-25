@@ -37,4 +37,11 @@ public interface UserService extends IService<User> {
      * @return 用户数组
      */
     List<User> searchUsers(String userName);
+
+    /**
+     * 脱敏用户信息
+     * @param user 用户
+     * @return 用户
+     */
+    User getSafetyUser(User user);
 }
