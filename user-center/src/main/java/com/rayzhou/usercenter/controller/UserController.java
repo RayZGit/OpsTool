@@ -1,5 +1,6 @@
 package com.rayzhou.usercenter.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.rayzhou.usercenter.model.User;
 import com.rayzhou.usercenter.model.request.UserLoginRequest;
 import com.rayzhou.usercenter.model.request.UserRegisterRequest;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.rayzhou.usercenter.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -77,10 +79,12 @@ public class UserController {
         if (!isAdmin(request)) {
             return new ArrayList<>();
         }
-        if (StringUtils.isNoneBlank(username)) {
-            return userService.searchUsers(username);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if (StringUtils.isNotBlank(username)) {
+            queryWrapper.like("username", username);
         }
-        return null;
+        List<User> users = userService.list(queryWrapper);
+        return users.stream().map(user -> userService.getSafetyUser(user)).collect(Collectors.toList());
     }
 
     @PostMapping("/delete")

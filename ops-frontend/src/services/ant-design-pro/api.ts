@@ -18,6 +18,14 @@ export async function outLogin(options?: { [key: string]: any }) {
   });
 }
 
+/** 退出登录接口 POST /api/user/search */
+export async function searchUser(options?: { [key: string]: any }) {
+  return request<API.CurrentUser[]>('/api/user/search', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
 /** 登录接口 POST /api/user/login */
 export async function login(body: API.LoginParams, options?: { [key: string]: any }) {
   return request<API.LoginResult>('/api/user/login', {
