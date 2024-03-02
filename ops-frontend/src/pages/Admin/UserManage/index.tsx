@@ -88,11 +88,16 @@ export default () => {
       cardBordered
       request={async (params, sort, filter) => {
         console.log(sort, filter);
-        const userList = await searchUser();
-
-        return {
-          data: userList
+        const res = await searchUser();
+        if (res.code === 0) {
+          return {
+            data: res.data
+          }
         }
+        return {
+          data: []
+        }
+
       }}
       editable={{
         type: 'multiple',

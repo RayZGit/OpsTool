@@ -80,27 +80,31 @@ const Register: React.FC = () => {
     }
     try {
       // 注册
-      const userId = await register({
+      const res = await register({
         userAccount,
         password,
         checkPassword,
         type,
       });
-      console.log("userId " + userId)
-      if (userId > 0) {
+
+      if (res.code === 0 && res.data > 0) {
+        const userId = res.data;
+        console.log("userId " + userId)
         const defaultLoginSuccessMessage = '注册成功！';
         message.success(defaultLoginSuccessMessage);
 
         if (!history) return;
         const urlParams = new URL(window.location.href).searchParams;
+        if (urlParams) {
+          history.push('/user/login?redirect=' + urlParams.get('redirect'));
+        } else {
+          history.push('/user/login')
+        }
         // redirect to login page
-        history.push('/user/user/login?redirect=' + urlParams.get('redirect'));
-        history.push({
 
-        })
         return;
       }
-      throw new Error(`Register error id  = ${userId}`)
+      throw new Error(`Register error code  = ${res.code}`)
     } catch (error) {
       const defaultLoginFailureMessage = '注册失败，请重试！';
       console.log(error);

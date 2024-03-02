@@ -2,6 +2,8 @@ package com.rayzhou.usercenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.rayzhou.usercenter.common.ErrorCode;
+import com.rayzhou.usercenter.exception.BusinessException;
 import com.rayzhou.usercenter.mapper.UserMapper;
 import com.rayzhou.usercenter.model.User;
 import com.rayzhou.usercenter.service.UserService;
@@ -36,27 +38,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long registerUser(String userAccount, String password, String checkPassword) {
         if (StringUtils.isAnyBlank(userAccount, password, checkPassword)) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_NULL);
         }
         if (userAccount.length() < 4) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
         if (password.length() < 8) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
         String validPattern = "[$&+,:;=?@#|'<>.^*()%!-]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
 
         if (!password.equals(checkPassword)) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         if (userMapper.selectCount(queryWrapper) > 0) {
-            return -1;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
 
         String hashedPassword = DigestUtils.md5DigestAsHex((SALT + password).getBytes());
@@ -64,7 +66,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserAccount(userAccount);
         user.setUserPassword(hashedPassword);
         if (!this.save(user)) {
-            return -1;
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
         return user.getId();
     }
@@ -72,18 +74,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            return null;
+            throw new BusinessException(ErrorCode.INPUT_NULL);
         }
         if (userAccount.length() < 4) {
-            return null;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
         if (userPassword.length() < 6) {
-            return null;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
         String validPattern = "[$&+,:;=?@#|'<>.^*()%!-]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            return null;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
 
         String hashedPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -94,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User user = userMapper.selectOne(queryWrapper);
         if (user == null) {
             log.info("User login failed, userAccount or userPassword can't match");
-            return null;
+            throw new BusinessException(ErrorCode.INPUT_ERROR);
         }
 
         User safetyUser = new User();
@@ -141,6 +143,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         safetyUser.setCreateTime(user.getCreateTime());
         safetyUser.setUpdateTime(user.getUpdateTime());
         return safetyUser;
+    }
+
+    @Override
+    public void userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
     }
 }
 

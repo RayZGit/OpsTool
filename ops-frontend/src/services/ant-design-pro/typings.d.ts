@@ -2,6 +2,13 @@
 /* eslint-disable */
 
 declare namespace API {
+
+  type BaseResponse<T> = {
+    data: T;
+    code: number;
+    message: string;
+  }
+
   type CurrentUser = {
 
     userAccount?: string;
